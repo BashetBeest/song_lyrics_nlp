@@ -17,6 +17,8 @@ class TextProcessor:
             new_title = new_title.lower()
             new_title = re.sub('\\([^>]+\\)', '', new_title)
             new_title = re.sub('\[[^>]+\]', '', new_title)
+            new_title = re.sub('\u200b', '', new_title);
+            new_title = new_title.replace('u',"you")
             for ch in char_reg:
                 new_title = new_title.replace(ch, "")
 

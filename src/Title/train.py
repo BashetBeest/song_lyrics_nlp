@@ -34,12 +34,14 @@ def main():
     full_lyrics_test = test["Lyric"].values.tolist()
     y_train = train["Title"].values.tolist()
     y_test = test["Title"].values.tolist()
+    artists_train = train["Artist"].values.tolist()
 
     processor = TextProcessor()
     pro_titles = processor.processTitle(y_train)
 
     model = TitleModel()
-    set = model.train(train)
+    set = model.createFeatureSet(full_lyrics_train, artists_train, pro_titles)
+    model.train(set)
 
 
     # print(pro_lyrics)
