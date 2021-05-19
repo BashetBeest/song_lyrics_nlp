@@ -13,12 +13,15 @@ class TextProcessor:
         char_reg = "!@#$%^*_+{}:<>?,.;="
 
         for title in titles:
+
             new_title = title
             new_title = new_title.lower()
             new_title = re.sub('\\([^>]+\\)', '', new_title)
             new_title = re.sub('\[[^>]+\]', '', new_title)
-            new_title = re.sub('\u200b', '', new_title);
-            new_title = new_title.replace('u',"you")
+            new_title = re.sub('\u200b', '', new_title)
+            new_title = new_title.replace(' u '," you ")
+            new_title = new_title.replace('u,', "you")
+
             for ch in char_reg:
                 new_title = new_title.replace(ch, "")
 
@@ -26,7 +29,10 @@ class TextProcessor:
             head, sep, tail = head.partition('-')
             head, sep, tail = head.partition('|')
             new_title = head
+            new_title = new_title.rstrip()
+            new_title = new_title.lstrip()
             if new_title != "":
                 pro_titles.append(new_title)
+
             # print(title," = ",new_title)
         return pro_titles
