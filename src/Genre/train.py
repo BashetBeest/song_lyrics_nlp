@@ -9,6 +9,9 @@ from nltk.stem.snowball import SnowballStemmer
 import nltk
 
 # nltk.download('words')
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
 from tqdm import tqdm
 
 stemmer = PorterStemmer()
@@ -31,35 +34,36 @@ def main():
     data_df = get_data()
     # print(data_df)
     formatted_data = format_data(data_df)
-    # print(formatted_data)
+    # # print(formatted_data)
     final = preprocessing(formatted_data)
-    # print(final)
+    # # print(final)
     preprocessed_data = preprocessing(final)
-    # print(final)
+    # # print(final)
 
     nan_value = float("NaN")
     preprocessed_data.replace("", nan_value, inplace=True)
-    preprocessed_data.dropna(subset=["Lyric"], inplace=True)
-
-    #target class
-    Genres = ["Rock", "Pop", "Hip Hop", "Metal", "Country", "Jazz", "Electronic", "R&B"]
+    preprocessed_data.dropna(subset=["lyrics"], inplace=True)
 
     train, test = split_data(preprocessed_data)
-    full_lyrics_train = train["Lyric"].values.tolist()
-    full_lyrics_test = test["Lyric"].values.tolist()
-    y_train = train[Genres].values.tolist()
-    y_test = test[Genres].values.tolist()
+    full_lyrics_train = train["lyrics"].values.tolist()
+    full_lyrics_test = test["lyrics"].values.tolist()
+    y_train = train["genre"].values.tolist()
+    y_test = test["genre"].values.tolist()
     vectorizer = CountVectorizer(min_df=0, lowercase=False, analyzer='word')
     ind = 0
 
     # Visualizing using WordCloud
-    # most_used_words_in_lyrics = ' '.join(list(final["Lyric"]))
+    # most_used_words_in_lyrics = ' '.join(list(final["lyrics"]))
     # used_lyrics = WordCloud(width=500, height=500).generate(most_used_words_in_lyrics)
     # plt.figure(figsize=(10, 8))
     # plt.imshow(used_lyrics)
     # plt.show()
-
-
+    #
+    # most_used_words_in_genre = ' '.join(list(final["genre"]))
+    # used_genre = WordCloud(width=500, height=500).generate(most_used_words_in_genre)
+    # plt.figure(figsize=(10, 8))
+    # plt.imshow(used_genre)
+    # plt.show()
 
     # ind = 0
     # for x in full_lyrics_train:
@@ -86,7 +90,10 @@ def main():
     # print(X_train)
     X_test = vectorizer.transform(cleanedList_test)
     # print(X_test)
-    classifier = LogisticRegression()
+    # classifier = LogisticRegression()
+    # classifier = MultinomialNB()
+    #classifier = AdaBoostClassifier()
+    classifier = KNeighborsClassifier()
     print("FIIITTTEEEEDDD")
     classifier.fit(X_train, y_train)
     score = classifier.score(X_test, y_test)
@@ -117,7 +124,7 @@ def get_data():
         OUTPUT :
             data - list of dataframes in the data folder
     """
-    path = "C:/Users/as/Desktop/song_lyrics_nlp/data"
+    path = "C:/Users/as/Desktop/NLP PROJECT/data"
     extension = 'csv'
     os.chdir(path)
     result = glob.glob('*.{}'.format(extension))
