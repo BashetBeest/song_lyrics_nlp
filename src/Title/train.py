@@ -74,7 +74,7 @@ def get_data():
             data - list of dataframes in the data folder
     '''
 
-    path = "D:/Documents/Maastricht/Second Year/Period 5/NLP/assignments/Assignment1/nlp2021/Project/song_lyrics_nlp/data/"
+    path = "D:/Documents/Maastricht/Second Year/Period 5/NLP/assignments/Assignment1/nlp2021/Project/song_lyrics_nlp/data/SongLyricsDataset"
     extension = 'csv'
     os.chdir(path)
 

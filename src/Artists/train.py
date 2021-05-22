@@ -68,7 +68,7 @@ def get_data():
         OUTPUT :
             data - list of dataframes in the data folder
     '''
-    path = "data/"
+    path = "data/SongLyricsDataset"
     extension = 'csv'
     os.chdir(path)
     result = glob.glob('*.{}'.format(extension))
