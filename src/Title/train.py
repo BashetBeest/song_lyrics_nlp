@@ -10,6 +10,8 @@ from Title.TitleModel import TitleModel
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 
+from wordcloud import WordCloud, STOPWORDS
+import matplotlib.pyplot as plt
 
 def main():
     data_df = get_data()
@@ -18,7 +20,7 @@ def main():
     print("length:", len(final))
     train, test = split_data(final)
     print("length:", len(train), len(test))
-    print(test.head())
+    #print(test.head())
     print("===========================================")
 
     '''
@@ -30,22 +32,42 @@ def main():
 
     "Initializing..."
 
-    full_lyrics_train = train["Lyric"].values.tolist()
-    full_lyrics_test = test["Lyric"].values.tolist()
-    y_train = train["Title"].values.tolist()
-    y_test = test["Title"].values.tolist()
-    artists_train = train["Artist"].values.tolist()
+    full_lyrics_train = train["Lyric"]
+    full_lyrics_test = test["Lyric"]
+    y_train = train["Title"]
+    y_test = test["Title"]
+    artists_train = train["Artist"]
 
     processor = TextProcessor()
     pro_titles = processor.processTitle(y_train)
-
     model = TitleModel()
-    set = model.createFeatureSet(full_lyrics_train, artists_train, pro_titles)
-    model.train(set)
+
+    feature_set = []
+    for i in range(len(pro_titles)):
+        set = []
+        set.append(train["Lyric"][i])
+        set.append(train["Artist"][i])
+        set.append(pro_titles[i])
+        #print(pro_titles[i], ' ===== ', train["Lyric"][i], " ===== ", train["Artist"][i])
+        feature_set.append(set)
 
 
-    # print(pro_lyrics)
-    # print(pro_titles)
+
+    test_titles = processor.processTitle(y_test)
+    test_set = []
+    for i in range(len(test_titles)):
+        set = []
+        set.append(test["Lyric"][i])
+        set.append(test["Artist"][i])
+        set.append(test_titles[i])
+        #print(test_titles[i], ' ===== ', train["Lyric"][i], " ===== ", train["Artist"][i])
+        test_set.append(set)
+
+
+    #set = model.createFeatureSet(full_lyrics_train, artists_train, pro_titles)
+
+    model.train(test_set)
+    model.predict(test_set)
 
 
 

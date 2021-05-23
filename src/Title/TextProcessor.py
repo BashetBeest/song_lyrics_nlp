@@ -10,10 +10,11 @@ class TextProcessor:
         """ Input: List of titles [title,title,title,....]"""
         """ Output: List of titles """
         pro_titles = []
-        char_reg = "!@#$%^*_+{}:<>?,.;="
+        char_reg = "!@#$%^*_+{}:<>?,.;\"="
 
-        for title in titles:
+        for i in range(len(titles)):
 
+            title = titles[i]
             new_title = title
             new_title = new_title.lower()
             new_title = re.sub('\\([^>]+\\)', '', new_title)
@@ -31,8 +32,8 @@ class TextProcessor:
             new_title = head
             new_title = new_title.rstrip()
             new_title = new_title.lstrip()
-            if new_title != "":
-                pro_titles.append(new_title)
+
+            pro_titles.append(new_title)
 
             # print(title," = ",new_title)
         return pro_titles
