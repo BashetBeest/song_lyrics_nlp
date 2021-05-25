@@ -14,43 +14,82 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from tqdm import tqdm
 
-stemmer = PorterStemmer()
+# stemmer = PorterStemmer()
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+import pathlib
 import os
 import glob
 from autocorrect import Speller
 
-spell = Speller()
+# spell = Speller()
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
-from FeatureCreator import FeatureCreator
+from dataset import MetroLyricsDataModule
+from nn_train import LitModel
+# from FeatureCreator import FeatureCreator
 from sklearn.feature_extraction.text import CountVectorizer
+from scipy.sparse import csr_matrix, vstack
 from sklearn.linear_model import LogisticRegression
-
+from pytorch_lightning import Trainer
 
 def main():
-    data_df = get_data()
+    path = pathlib.Path(__file__).parent.absolute()
+    path = os.path.join(path, "../../data/MetroLyrics")
+    metro = MetroLyricsDataModule(path)
+    metro.setup()
+    model = LitModel(metro.get_vector_len(), metro.n_genres)
+    trainer = Trainer(max_epochs=10, fast_dev_run=True) # put fast dev run to False to actually train and test with all data
+    trainer.fit(model, datamodule=metro)
+
+    trainer.test(model, datamodule=metro)
+    
+    return
+    # Uncomment this comment block to make it work with the previous functionality
+    # train_loader = metro.train_dataloader()
+    # X_train = csr_matrix([])
+    # y_train = []
+    # for batch in train_loader:
+    #     x, y = batch
+    #     if X_train.shape == (1, 0):
+    #         X_train = x
+    #     else:
+    #         X_train = vstack((X_train, x))
+    #     y_train += y
+    #
+    # test_loader = metro.test_dataloader()
+    # X_test = csr_matrix([])
+    # y_test = []
+    # for batch in test_loader:
+    #     x, y = batch
+    #     if X_test.shape == (1, 0):
+    #         X_test = x
+    #     else:
+    #         X_test = vstack((X_test, x))
+    #     y_test += y
+
+
+    # data_df = get_data()
     # print(data_df)
-    formatted_data = format_data(data_df)
+    # formatted_data = format_data(data_df)
     # # print(formatted_data)
-    final = preprocessing(formatted_data)
+    # final = preprocessing(formatted_data)
     # # print(final)
-    preprocessed_data = preprocessing(final)
+    # preprocessed_data = preprocessing(final)
     # # print(final)
 
-    nan_value = float("NaN")
-    preprocessed_data.replace("", nan_value, inplace=True)
-    preprocessed_data.dropna(subset=["lyrics"], inplace=True)
+    # nan_value = float("NaN")
+    # preprocessed_data.replace("", nan_value, inplace=True)
+    # preprocessed_data.dropna(subset=["lyrics"], inplace=True)
 
-    train, test = split_data(preprocessed_data)
-    full_lyrics_train = train["lyrics"].values.tolist()
-    full_lyrics_test = test["lyrics"].values.tolist()
-    y_train = train["genre"].values.tolist()
-    y_test = test["genre"].values.tolist()
-    vectorizer = CountVectorizer(min_df=0, lowercase=False, analyzer='word')
-    ind = 0
+    # train, test = split_data(preprocessed_data)
+    # full_lyrics_train = train["lyrics"].values.tolist()
+    # full_lyrics_test = test["lyrics"].values.tolist()
+    # y_train = train["genre"].values.tolist()
+    # y_test = test["genre"].values.tolist()
+    # vectorizer = CountVectorizer(min_df=0, lowercase=False, analyzer='word')
+    # ind = 0
 
     # Visualizing using WordCloud
     # most_used_words_in_lyrics = ' '.join(list(final["lyrics"]))
@@ -79,26 +118,28 @@ def main():
     #         del y_test[ind]
     #     ind += 1
 
-    cleanedList_train = full_lyrics_train
-    cleanedList_test = full_lyrics_test
-    cleanedList_train = [x for x in full_lyrics_train if str(x) != 'nan']
-    cleanedList_test = [x for x in full_lyrics_test if str(x) != 'nan']
+    # cleanedList_train = full_lyrics_train
+    # cleanedList_test = full_lyrics_test
+    # cleanedList_train = [x for x in full_lyrics_train if str(x) != 'nan']
+    # cleanedList_test = [x for x in full_lyrics_test if str(x) != 'nan']
     # print(cleanedList)
-    vectorizer.fit(cleanedList_train)
+    # vectorizer.fit(cleanedList_train)
 
-    X_train = vectorizer.transform(cleanedList_train)
+    # X_train = vectorizer.transform(cleanedList_train)
     # print(X_train)
-    X_test = vectorizer.transform(cleanedList_test)
+    # X_test = vectorizer.transform(cleanedList_test)
     # print(X_test)
+
+
     # classifier = LogisticRegression()
     # classifier = MultinomialNB()
     #classifier = AdaBoostClassifier()
     classifier = KNeighborsClassifier()
-    print("FIIITTTEEEEDDD")
     classifier.fit(X_train, y_train)
+    print("FIIITTTEEEEDDD")
     score = classifier.score(X_test, y_test)
     print("Accuracy:", score)
-
+    
 
 def split_data(df, size=0.8):
     """
@@ -124,7 +165,8 @@ def get_data():
         OUTPUT :
             data - list of dataframes in the data folder
     """
-    path = "C:/Users/as/Desktop/NLP PROJECT/data"
+    path = pathlib.Path(__file__).parent.absolute()
+    path = os.path.join(path, "../../data/SongLyricsDataset")
     extension = 'csv'
     os.chdir(path)
     result = glob.glob('*.{}'.format(extension))
