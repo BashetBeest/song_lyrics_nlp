@@ -103,13 +103,13 @@ class MetroLyricsDataModule(pl.LightningDataModule):
         self.define_count_vector()
 
     def train_dataloader(self):
-        return DataLoader(self.metro_train, collate_fn=self.collate_fn, batch_size=self.batch_size, num_workers=8)
+        return DataLoader(self.metro_train, collate_fn=self.collate_fn, batch_size=self.batch_size) # , num_workers=8)
 
     def val_dataloader(self):
-        return DataLoader(self.metro_val, collate_fn=self.collate_fn, batch_size=self.batch_size, num_workers=8)
+        return DataLoader(self.metro_val, collate_fn=self.collate_fn, batch_size=self.batch_size) # , num_workers=8)
     
     def test_dataloader(self):
-        return DataLoader(self.metro_test, collate_fn=self.collate_fn, batch_size=self.batch_size, num_workers=8)
+        return DataLoader(self.metro_test, collate_fn=self.collate_fn, batch_size=self.batch_size) # , num_workers=8)
 
     def define_count_vector(self):
         self.vectorizer = CountVectorizer(min_df=0, lowercase=False, analyzer='word', dtype=np.int16)

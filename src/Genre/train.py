@@ -33,14 +33,25 @@ from sklearn.feature_extraction.text import CountVectorizer
 from scipy.sparse import csr_matrix, vstack
 from sklearn.linear_model import LogisticRegression
 from pytorch_lightning import Trainer
+import joblib
 
 def main():
-    path = pathlib.Path(__file__).parent.absolute()
-    path = os.path.join(path, "../../data/MetroLyrics")
-    metro = MetroLyricsDataModule(path)
-    metro.setup()
-    model = LitModel(metro.get_vector_len(), metro.n_genres)
-    trainer = Trainer(max_epochs=10, fast_dev_run=True) # put fast dev run to False to actually train and test with all data
+    load_saved = True
+    save_data = not load_saved
+    if not load_saved:
+        path = pathlib.Path(__file__).parent.absolute()
+        path = os.path.join(path, "../../data/MetroLyrics")
+        metro = MetroLyricsDataModule(path)
+        metro.setup()
+        if save_data:
+            # Save data to cut back on preprocessing time
+            joblib.dump(metro, "metro_lyrics.pkl")
+    else:
+        metro = joblib.load("metro_lyrics.pkl")
+
+    metro.batch_size = 32
+    model = LitModel(metro.get_vector_len(), metro.n_genres, hidden_size=100, lr=0.02)
+    trainer = Trainer(max_epochs=10, gpus=1, fast_dev_run=False) # put fast dev run to False to actually train and test with all data
     trainer.fit(model, datamodule=metro)
 
     trainer.test(model, datamodule=metro)

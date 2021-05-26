@@ -23,14 +23,14 @@ class LitModel(pl.LightningModule):
         self.l2 = torch.nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        x = torch.Tensor(x.toarray())
+        x = torch.Tensor(x.toarray()).to("cuda")
         res = self.relu(self.l1(x))
         res = torch.softmax(self.l2(res), dim=1)
         return res
 
     def training_step(self, batch, batch_idx):
         x, y = batch
-        y = torch.LongTensor(y)
+        y = torch.LongTensor(y).to("cuda")
         y_hat = self(x) # basically the same as self.forward(x)
         loss = self.loss(y_hat, y)
         acc = self.acc(y_hat, y)
@@ -39,7 +39,7 @@ class LitModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
-        y = torch.LongTensor(y)
+        y = torch.LongTensor(y).to("cuda")
         y_hat = self(x) # basically the same as self.forward(x)
         loss = self.loss(y_hat, y)
         acc = self.acc(y_hat, y)
@@ -48,7 +48,7 @@ class LitModel(pl.LightningModule):
 
     def test_step(self, batch, batch_idx):
         x, y = batch
-        y = torch.LongTensor(y)
+        y = torch.LongTensor(y).to("cuda")
         y_hat = self(x) # basically the same as self.forward(x)
         loss = self.loss(y_hat, y)
         acc = self.acc(y_hat, y)
