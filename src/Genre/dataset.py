@@ -117,32 +117,11 @@ class MetroLyricsDataModule(pl.LightningDataModule):
         self.collate_fn = self.make_vector
 
     def make_vector(self, batch):
-        # print(batch)
-        # print(batch.shape)
-        lyrics = self.vectorizer.transform([batch[0]["lyrics"]])
-        for x in batch[1:]:
-            lyrics = vstack((lyrics, self.vectorizer.transform([x["lyrics"]])))
-        # lyrics = [self.vectorizer.transform([x["lyrics"]]) for x in batch]
+        lyrics = self.vectorizer.transform([x["lyrics"] for x in batch])
+
         labels = [x["label"] for x in batch]
         return lyrics, labels
 
     def get_vector_len(self):
         return len(self.vectorizer.vocabulary_)
         
-
-
-# path = pathlib.Path(__file__).parent.absolute()
-# path = os.path.join(path, "../../data/MetroLyrics")
-# m = MetroLyricsDataModule(path)
-# m.setup()
-# m.define_count_vector()
-# tr = m.train_dataloader()
-# for stuff in tr:
-#     x, y = stuff
-#     # print(stuff)
-#     print(x)
-#     print(y)
-#     break
-# d = tr.dataset
-# print(len(d))
-# print(d[len(d)-1])

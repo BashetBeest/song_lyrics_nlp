@@ -32,12 +32,13 @@ from nn_train import LitModel
 from sklearn.feature_extraction.text import CountVectorizer
 from scipy.sparse import csr_matrix, vstack
 from sklearn.linear_model import LogisticRegression
-from pytorch_lightning import Trainer
+from pytorch_lightning import Trainer, loggers
 import joblib
 
 def main():
-    load_saved = True
+    load_saved = False # put to true to save time
     save_data = not load_saved
+    save_path = "metro_lyrics.pkl"
     if not load_saved:
         path = pathlib.Path(__file__).parent.absolute()
         path = os.path.join(path, "../../data/MetroLyrics")
@@ -45,19 +46,29 @@ def main():
         metro.setup()
         if save_data:
             # Save data to cut back on preprocessing time
-            joblib.dump(metro, "metro_lyrics.pkl")
+            joblib.dump(metro, save_path)
     else:
-        metro = joblib.load("metro_lyrics.pkl")
+        metro = joblib.load(save_path)
 
-    metro.batch_size = 32
-    model = LitModel(metro.get_vector_len(), metro.n_genres, hidden_size=100, lr=0.02)
-    trainer = Trainer(max_epochs=10, gpus=1, fast_dev_run=False) # put fast dev run to False to actually train and test with all data
+    logloc = ... # enter logging location if logging is what you desire
+    # logger = loggers.TensorBoardLogger(logloc, name="", version=None)
+
+    metro.batch_size = 128
+    model = LitModel(metro.get_vector_len(), metro.n_genres, hidden_size=[100, 25], lr=0.0001)
+    model.num_to_genre = metro.metro_train.dataset.num_to_genre
+    trainer = Trainer(
+        max_epochs=10,
+        gpus=1,
+        fast_dev_run=False, # put fast dev run to False to actually train and test with all data
+        # logger=logger,
+        # resume_from_checkpoint=logloc+"/version_13/checkpoints/epoch=9-step=12719.ckpt"
+        )
     trainer.fit(model, datamodule=metro)
 
     trainer.test(model, datamodule=metro)
     
     return
-    # Uncomment this comment block to make it work with the previous functionality
+    # Uncomment this comment block and comment above return statement to make it work with sklearn models below.
     # train_loader = metro.train_dataloader()
     # X_train = csr_matrix([])
     # y_train = []
@@ -68,7 +79,7 @@ def main():
     #     else:
     #         X_train = vstack((X_train, x))
     #     y_train += y
-    #
+    
     # test_loader = metro.test_dataloader()
     # X_test = csr_matrix([])
     # y_test = []
@@ -142,10 +153,11 @@ def main():
     # print(X_test)
 
 
-    # classifier = LogisticRegression()
+    classifier = RandomForestClassifier()
+    # classifier = LogisticRegression(max_iter=10000)
     # classifier = MultinomialNB()
     #classifier = AdaBoostClassifier()
-    classifier = KNeighborsClassifier()
+    # classifier = KNeighborsClassifier()
     classifier.fit(X_train, y_train)
     print("FIIITTTEEEEDDD")
     score = classifier.score(X_test, y_test)
