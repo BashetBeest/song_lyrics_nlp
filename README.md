@@ -1,1 +1,3 @@
-# song_lyrics_nlp
+# NLP Project: Predicting the title, artist and genre of a song
+
+This paper examines a personalised and adapted approach to analysing and classifying lyrics, to an artist's name and a musical genre, independently from one another, and present in the datasets. We also propose a model to predict a song title that suits the given lyrics. We find that despite the small size of the datasets, the different prediction model manage to achieve great results for certain artists, genre and predicting title, while some models fail poorly on specific artists. This paper also gives insight to the lyrics difference between different music genres, specially between nowadays the two most streamed one worldwide: pop and hip-hop.
